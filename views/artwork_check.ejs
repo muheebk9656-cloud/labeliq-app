@@ -1,0 +1,150 @@
+<!-- The 'hidden' class MUST be present here -->
+<div 
+  id="artwork-modal" 
+  class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-[3px] z-50 flex items-center justify-center p-4 transition-all"
+>
+  <div class="w-full max-w-[560px] bg-white rounded-3xl shadow-2xl border border-slate-100 p-7 sm:p-8 space-y-6 relative">
+    
+    <div class="flex items-start justify-between">
+      <div>
+        <h2 class="text-[19px] font-bold text-slate-900 tracking-tight leading-snug">Artwork Pre-Check</h2>
+        <p class="text-[13px] text-slate-400 font-normal mt-0.5">Verify packaging before going to print</p>
+      </div>
+      <button 
+        type="button" 
+        onclick="closeArtworkModal()" 
+        class="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-50 transition-colors"
+      >
+        <svg class="w-5 h-5 stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Drag & Drop Area -->
+    <div 
+      id="modalDropzone"
+      onclick="document.getElementById('artworkFileInput').click()"
+      class="border-2 border-dashed border-slate-200/90 hover:border-indigo-400 bg-[#fafbfe] rounded-2xl py-12 px-6 flex flex-col items-center justify-center text-center cursor-pointer transition-colors group"
+    >
+      <input type="file" id="artworkFileInput" class="hidden" accept=".pdf,.ai,.psd,.png" />
+      <p id="modalDropText" class="text-[15px] font-medium text-slate-700 group-hover:text-indigo-600 transition-colors">
+        Drop artwork files here
+      </p>
+      <p class="text-[12px] text-slate-400 mt-1 font-normal">
+        PDF, AI, PSD, PNG — high-resolution
+      </p>
+    </div>
+
+    <!-- Inputs -->
+    <form action="/business/artwork-check" method="POST" class="space-y-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-[13px] font-medium text-slate-600 mb-1.5">Category</label>
+          <div class="relative">
+            <select 
+              name="category" 
+              required
+              class="w-full appearance-none px-4 py-2.5 rounded-xl border border-slate-200 text-[14px] text-slate-800 bg-white focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100 transition-all cursor-pointer pr-10"
+            >
+              <option value="Food & Beverage" selected>Food & Beverage</option>
+              <option value="Cosmetics">Cosmetics</option>
+              <option value="Household">Household</option>
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3.5 text-slate-500">
+              <svg class="w-4 h-4 stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[13px] font-medium text-slate-600 mb-1.5">Target market</label>
+          <div class="relative">
+            <select 
+              name="targetMarket" 
+              required
+              class="w-full appearance-none px-4 py-2.5 rounded-xl border border-slate-200 text-[14px] text-slate-800 bg-white focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100 transition-all cursor-pointer pr-10"
+            >
+              <option value="Domestic (India)" selected>Domestic (India)</option>
+              <option value="Export — SAARC">Export — SAARC</option>
+              <option value="Export — EU">Export — EU</option>
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3.5 text-slate-500">
+              <svg class="w-4 h-4 stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between gap-4 pt-2">
+        <button 
+          type="button" 
+          onclick="closeArtworkModal()"
+          class="flex-1 py-2.5 px-6 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold text-[14px] text-center transition-colors"
+        >
+          Cancel
+        </button>
+        <button 
+          type="submit" 
+          class="flex-1 py-2.5 px-6 rounded-xl bg-[#4b3ce5] hover:bg-[#3f30d4] text-white font-semibold text-[14px] text-center transition-all shadow-md flex items-center justify-center gap-1.5"
+        >
+          <span>Start Pre-Check</span>
+          <span>→</span>
+        </button>
+      </div>
+    </form>
+
+  </div>
+</div>
+
+<script>
+  function openArtworkModal() {
+    const modal = document.getElementById('artwork-modal');
+    if (modal) modal.classList.remove('hidden');
+  }
+
+  function closeArtworkModal() {
+    const modal = document.getElementById('artwork-modal');
+    if (modal) modal.classList.add('hidden');
+  }
+
+  const modalBackdrop = document.getElementById('artwork-modal');
+  if (modalBackdrop) {
+    modalBackdrop.addEventListener('click', function(e) {
+      if (e.target === this) closeArtworkModal();
+    });
+  }
+
+  const modalDropzone = document.getElementById('modalDropzone');
+  const artworkFileInput = document.getElementById('artworkFileInput');
+  const modalDropText = document.getElementById('modalDropText');
+
+  if (modalDropzone && artworkFileInput) {
+    ['dragenter', 'dragover'].forEach(name => {
+      modalDropzone.addEventListener(name, (e) => {
+        e.preventDefault();
+        modalDropzone.classList.add('border-indigo-500', 'bg-indigo-50/20');
+      });
+    });
+
+    ['dragleave', 'drop'].forEach(name => {
+      modalDropzone.addEventListener(name, (e) => {
+        e.preventDefault();
+        modalDropzone.classList.remove('border-indigo-500', 'bg-indigo-50/20');
+      });
+    });
+
+    modalDropzone.addEventListener('drop', (e) => {
+      if (e.dataTransfer.files.length > 0) {
+        artworkFileInput.files = e.dataTransfer.files;
+        modalDropText.textContent = `Selected: ${e.dataTransfer.files[0].name}`;
+      }
+    });
+
+    artworkFileInput.addEventListener('change', () => {
+      if (artworkFileInput.files.length > 0) {
+        modalDropText.textContent = `Selected: ${artworkFileInput.files[0].name}`;
+      }
+    });
+  }
+</script>

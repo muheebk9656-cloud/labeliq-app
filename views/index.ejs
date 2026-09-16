@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= data.brandName %> - Package Compliance, Simplified.</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              DEFAULT: '#4638d9',
+              hover: '#3a2ec2'
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-white text-slate-700 antialiased font-sans flex flex-col min-h-screen relative">
+
+  <!-- Navbar -->
+  <header class="w-full border-b border-slate-100 bg-white sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-6 sm:px-12 h-20 flex items-center justify-between">
+      
+      <div class="flex items-center gap-10">
+        <!-- Logo -->
+        <a href="/" class="flex items-center gap-2.5">
+          <div class="w-7 h-7 rounded-lg bg-[#4638d9] flex items-center justify-center text-white">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+              <line x1="4" y1="6" x2="6" />
+              <line x1="10" y1="6" x2="20" y2="6" />
+              <line x1="4" y1="12" x2="6" y2="12" />
+              <line x1="10" y1="12" x2="20" y2="12" />
+              <line x1="4" y1="18" x2="6" y2="18" />
+              <line x1="10" y1="18" x2="20" y2="18" />
+            </svg>
+          </div>
+          <span class="text-xl font-bold text-slate-900 tracking-tight"><%= data.brandName %></span>
+        </a>
+
+        <!-- Main Links -->
+        <nav class="hidden md:flex items-center gap-8 text-[15px] font-medium text-slate-600">
+          <a href="#" class="hover:text-slate-900 transition-colors">Product</a>
+          <a href="#" class="hover:text-slate-900 transition-colors">Rule Engine</a>
+          <a href="/verification" class="hover:text-slate-900 transition-colors">Verification</a>
+        </nav>
+      </div>
+
+      <!-- Right Action Items with Working Dropdown -->
+      <div class="flex items-center gap-6">
+        <div class="relative" id="portal-menu-container">
+          <!-- Trigger Button -->
+          <button 
+            id="portal-btn"
+            type="button"
+            class="flex items-center gap-1.5 text-[15px] font-medium text-slate-700 hover:text-slate-900 focus:outline-none transition-colors"
+          >
+            <span>Consumer Portal</span>
+            <svg id="dropdown-chevron" class="w-4 h-4 text-slate-400 stroke-[2.2] transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+
+          <!-- Dropdown Panel -->
+          <div 
+            id="portal-dropdown" 
+            class="hidden absolute right-0 top-full mt-2 w-56 bg-white rounded-2xl shadow-xl shadow-slate-200/60 border border-slate-100 overflow-hidden z-50 py-1"
+          >
+            <a 
+              href="/" 
+              class="w-full px-5 py-3 text-left text-[14px] font-medium text-[#4638d9] bg-[#f5f6ff] hover:bg-[#eceeff] flex items-center justify-between transition-colors block"
+            >
+              <span>Consumer Portal</span>
+              <svg class="w-3.5 h-3.5 text-[#4638d9] stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </a>
+
+            <a 
+              href="/signout?portal=business" 
+              class="w-full px-5 py-3 text-left text-[14px] font-medium text-slate-800 hover:bg-slate-50 transition-colors block"
+            >
+              Business Portal
+            </a>
+
+            <a 
+              href="/signout?portal=legal" 
+              class="w-full px-5 py-3 text-left text-[14px] font-medium text-slate-800 hover:bg-slate-50 transition-colors block"
+            >
+              Legal Authority
+            </a>
+          </div>
+        </div>
+
+        <a href="/signout?portal=consumer" class="px-5 py-2.5 rounded-lg bg-[#4638d9] hover:bg-[#3a2ec2] text-white font-medium text-[15px] transition-colors shadow-sm">
+          Sign Out
+        </a>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Hero Container -->
+  <main class="max-w-4xl mx-auto w-full px-6 pt-16 pb-28 flex-1">
+    
+    <!-- Title & Subtitle -->
+    <div class="text-center">
+      <h1 class="text-5xl font-extrabold text-[#0f172a] tracking-tight leading-[1.15]">
+        Package Compliance,<br />Simplified.
+      </h1>
+      <p class="mt-4 text-[17px] text-slate-500 font-normal">
+        Instant Legal Metrology (Packaged Commodities) screening — free for consumers.
+      </p>
+    </div>
+
+    <!-- Drag and Drop Box -->
+    <div 
+      id="dropzone"
+      class="mt-12 rounded-2xl border-2 border-dashed border-slate-200/90 bg-white py-14 px-8 flex flex-col items-center justify-center transition-all cursor-pointer hover:border-slate-300"
+      onclick="document.getElementById('fileInput').click()"
+    >
+      <input type="file" id="fileInput" class="hidden" accept=".jpg,.jpeg,.png,.pdf" />
+      
+      <div class="text-slate-400 mb-4">
+        <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 16.5v1.5a2 2 0 002 2h12a2 2 0 002-2v-1.5M16 8l-4-4m0 0L8 8m4-4v12" />
+        </svg>
+      </div>
+
+      <p id="dropText" class="text-[15px] font-medium text-slate-800">
+        Drop artwork or label photo here
+      </p>
+      <p class="text-xs text-slate-400 mt-1.5">
+        JPG, PNG, PDF — up to 25 MB per file
+      </p>
+
+      <button 
+        type="button" 
+        class="mt-6 px-6 py-2 border border-slate-200 rounded-lg text-[13px] font-medium text-slate-700 bg-white hover:bg-slate-50 transition-colors shadow-sm"
+      >
+        Browse File
+      </button>
+    </div>
+
+    <!-- Category Pills -->
+    <div class="mt-8 flex flex-wrap items-center gap-2">
+      <% data.categories.forEach((category, i) => { %>
+        <button class="px-5 py-2 rounded-full text-[14px] font-medium transition-colors <%= i === 0 ? 'border border-[#4638d9] text-[#4638d9] bg-indigo-50/20' : 'border border-slate-200 text-slate-600 hover:border-slate-300' %>">
+          <%= category %>
+        </button>
+      <% }) %>
+    </div>
+
+    <!-- Actions -->
+    <div class="mt-8 flex items-center gap-6">
+      <button class="px-6 py-3 rounded-lg bg-[#4638d9] hover:bg-[#3a2ec2] text-white font-medium text-[15px] shadow-sm transition-colors">
+        Try Sample Package
+      </button>
+      <a href="#" class="text-[14px] text-slate-500 hover:text-slate-700 underline underline-offset-4 decoration-slate-300 transition-colors">
+        Use sample label
+      </a>
+    </div>
+
+    <!-- Separator -->
+    <div class="border-t border-slate-200/80 mt-16 mb-12"></div>
+
+    <!-- How It Works -->
+    <section>
+      <span class="text-xs font-bold uppercase tracking-wider text-slate-400">
+        HOW IT WORKS
+      </span>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-10 mt-8">
+        <% data.steps.forEach(step => { %>
+          <div>
+            <span class="text-xs font-semibold text-slate-400 block mb-3"><%= step.number %></span>
+            <h4 class="text-base font-bold text-slate-900 mb-2"><%= step.title %></h4>
+            <p class="text-sm text-slate-500 leading-relaxed"><%= step.description %></p>
+          </div>
+        <% }) %>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Help Floating Action Button -->
+  <button 
+    aria-label="Help" 
+    class="fixed bottom-6 right-6 w-10 h-10 rounded-full bg-[#181d27] text-white flex items-center justify-center font-bold text-sm shadow-md hover:bg-black transition-colors"
+  >
+    ?
+  </button>
+
+  <script>
+    // File upload logic
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('fileInput');
+    const dropText = document.getElementById('dropText');
+
+    ['dragenter', 'dragover'].forEach(name => {
+      dropzone.addEventListener(name, (e) => {
+        e.preventDefault();
+        dropzone.classList.add('border-[#4638d9]', 'bg-indigo-50/10');
+      });
+    });
+
+    ['dragleave', 'drop'].forEach(name => {
+      dropzone.addEventListener(name, (e) => {
+        e.preventDefault();
+        dropzone.classList.remove('border-[#4638d9]', 'bg-indigo-50/10');
+      });
+    });
+
+    dropzone.addEventListener('drop', (e) => {
+      if (e.dataTransfer.files.length > 0) {
+        fileInput.files = e.dataTransfer.files;
+        dropText.textContent = `Selected: ${e.dataTransfer.files[0].name}`;
+      }
+    });
+
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files.length > 0) {
+        dropText.textContent = `Selected: ${fileInput.files[0].name}`;
+      }
+    });
+
+    // Portal Dropdown Toggle Logic
+    const portalBtn = document.getElementById('portal-btn');
+    const portalDropdown = document.getElementById('portal-dropdown');
+    const dropdownChevron = document.getElementById('dropdown-chevron');
+
+    portalBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      portalDropdown.classList.toggle('hidden');
+      dropdownChevron.classList.toggle('rotate-180');
+    });
+
+    // Close when clicking anywhere outside
+    document.addEventListener('click', (e) => {
+      const container = document.getElementById('portal-menu-container');
+      if (container && !container.contains(e.target)) {
+        portalDropdown.classList.add('hidden');
+        dropdownChevron.classList.remove('rotate-180');
+      }
+    });
+  </script>
+</body>
+</html>

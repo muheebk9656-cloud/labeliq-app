@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Directorate Authorization</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-[#FAFBFD] font-sans text-slate-800 min-h-screen flex items-center justify-center p-6">
+  <div class="w-full max-w-md bg-white rounded-3xl shadow-xl border border-slate-100 p-8 space-y-6">
+    <div class="text-center space-y-2">
+      <h1 class="text-2xl font-bold text-slate-900">Directorate Authorization</h1>
+      <p class="text-xs text-slate-500">Elevated privileges required to register officers</p>
+    </div>
+
+    <div class="p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs flex justify-between items-center">
+      <div>
+        <p><strong>Admin:</strong> legal_admin</p>
+        <p><strong>Pass:</strong> admin123</p>
+      </div>
+      <button type="button" onclick="document.getElementById('user').value='legal_admin'; document.getElementById('pass').value='admin123';" class="px-2 py-1 bg-white border border-amber-300 rounded font-semibold text-amber-800">
+        Auto Fill
+      </button>
+    </div>
+
+    <% if (error) { %>
+      <div class="p-2.5 bg-red-50 text-red-600 text-xs rounded-xl text-center"><%= error %></div>
+    <% } %>
+
+    <form action="/legal/admin/auth" method="POST" class="space-y-4">
+      <div>
+        <label class="block text-xs font-semibold mb-1">Username</label>
+        <input type="text" id="user" name="username" required class="w-full p-2.5 border rounded-xl text-sm" />
+      </div>
+      <div>
+        <label class="block text-xs font-semibold mb-1">Password</label>
+        <input type="password" id="pass" name="password" required class="w-full p-2.5 border rounded-xl text-sm" />
+      </div>
+      <button type="submit" class="w-full py-2.5 bg-slate-900 hover:bg-black text-white rounded-xl text-sm font-semibold">
+        Verify & Proceed
+      </button>
+    </form>
+  </div>
+</body>
+</html>

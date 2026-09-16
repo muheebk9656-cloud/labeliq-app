@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Legal Directorate - Rule Management</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          colors: { brand: { DEFAULT: '#4638d9', hover: '#3a2ec2' } }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-[#fcfdff] text-slate-700 antialiased font-sans h-screen overflow-hidden flex flex-col">
+
+  <!-- Fixed Top Header -->
+  <header class="w-full bg-white border-b border-slate-100 h-16 shrink-0 z-50">
+    <div class="px-8 h-full flex items-center justify-between">
+      <div class="flex items-center gap-10">
+        <a href="/" class="flex items-center gap-2.5">
+          <div class="w-7 h-7 rounded-lg bg-[#4638d9] flex items-center justify-center text-white font-bold text-sm">
+            IQ
+          </div>
+          <span class="text-xl font-bold text-slate-900 tracking-tight">LabelIQ</span>
+        </a>
+
+        <nav class="hidden md:flex items-center gap-8 text-[14px] font-medium text-slate-600">
+          <a href="/legal" class="hover:text-slate-900 transition-colors">Overview</a>
+          <a href="/legal/rules" class="text-[#4638d9] font-semibold">Rule Engine</a>
+          <a href="/verification" class="hover:text-slate-900 transition-colors">Verification</a>
+        </nav>
+      </div>
+
+      <!-- Right Portal Switcher & Sign Out -->
+      <div class="flex items-center gap-6">
+        <div class="relative" id="portal-menu-container">
+          <button id="portal-btn" type="button" class="flex items-center gap-1.5 text-[14px] font-medium text-slate-800 focus:outline-none">
+            <span>Legal Authority</span>
+            <svg id="dropdown-chevron" class="w-4 h-4 text-slate-400 stroke-[2] transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+
+          <div id="portal-dropdown" class="hidden absolute right-0 top-full mt-2 w-56 bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden z-50 py-1">
+            <a href="/signout?portal=consumer" class="w-full px-5 py-3 text-left text-[14px] font-medium text-slate-800 hover:bg-slate-50 block">Consumer Portal</a>
+            <a href="/signout?portal=business" class="w-full px-5 py-3 text-left text-[14px] font-medium text-slate-800 hover:bg-slate-50 block">Business Portal</a>
+            <a href="/legal" class="w-full px-5 py-3 text-left text-[14px] font-medium text-[#4638d9] bg-[#f5f6ff] flex items-center justify-between block">
+              <span>Legal Authority</span>
+              <svg class="w-3.5 h-3.5 text-[#4638d9] stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
+            </a>
+          </div>
+        </div>
+
+        <a href="/signout?portal=legal" class="px-4 py-2 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-700 font-medium text-[14px] transition-colors">
+          Sign Out
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Viewport Lock Layout -->
+  <div class="flex flex-1 h-[calc(100vh-4rem)] overflow-hidden">
+    
+    <!-- STATIC SIDEBAR -->
+    <aside class="w-64 border-r border-slate-100 bg-white flex flex-col justify-between py-6 px-4 shrink-0 h-full select-none">
+      <div class="space-y-6">
+        <!-- Officer Badge Card -->
+        <div class="flex items-center gap-3 px-2">
+          <div class="w-10 h-10 rounded-full bg-[#fbf2ea] text-[#d97706] font-bold text-xs flex items-center justify-center border border-[#fed7aa]/50 shrink-0">
+            <%= data.officer.initials %>
+          </div>
+          <div class="truncate">
+            <h2 class="text-sm font-bold text-slate-900 leading-tight truncate"><%= data.officer.name %></h2>
+            <p class="text-xs text-slate-400 truncate"><%= data.officer.role %></p>
+          </div>
+        </div>
+
+        <!-- Audit Alert Pill -->
+        <div class="mx-1 px-3 py-2 rounded-xl bg-[#fffbeb] border border-[#fef3c7] flex items-center gap-2 text-xs text-[#b45309] font-medium">
+          <svg class="w-4 h-4 text-[#d97706] shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+          <span>All actions audit-logged</span>
+        </div>
+
+        <!-- Sidebar Navigation -->
+
+        <nav class="space-y-1 pt-1">
+          <button 
+            type="button" 
+            onclick="openScanModal('legal')" 
+            class="w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-emerald-800 bg-emerald-50/80 hover:bg-emerald-100 font-semibold text-[13px] border border-emerald-200/70 transition-colors text-left shadow-2xs"
+            >
+            <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="3" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+            </svg>
+            <span>New Inspection Scan</span>
+          </button>
+          <a href="/legal" class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium text-[14px] transition-colors">
+            <span>Submitted Complaints</span>
+          </a>
+
+          <a href="/legal" class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium text-[14px] transition-colors">
+            <span>Case Queue</span>
+            <span class="w-5 h-5 rounded-full bg-[#ef4444] text-white text-[11px] font-bold flex items-center justify-center">2</span>
+          </a>
+
+          <a href="/legal" class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium text-[14px] transition-colors">
+            <span>Inspection Records</span>
+          </a>
+
+          <a href="/legal/rules" class="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-[#f5f6ff] text-[#4638d9] font-semibold text-[14px] transition-colors">
+            <span>Rule Management</span>
+            <span class="px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 text-[10px] font-bold">PDF</span>
+          </a>
+          <a href="/legal" class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium text-[14px] transition-colors">
+            <span>Audit Trial</span>
+          </a>
+          
+
+          
+        </nav>
+      </div>
+
+      <!-- Bottom Admin Link -->
+      <div class="pt-4 border-t border-slate-100 px-2">
+        <a href="/legal/admin/auth" class="w-full py-2 px-3 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors">
+          <span>+ Register Officers (Admin)</span>
+        </a>
+      </div>
+    </aside>
+
+    <!-- MAIN WORKSPACE -->
+    <main class="flex-1 px-10 py-8 overflow-y-auto h-full max-w-6xl space-y-8 pb-16">
+      
+      <!-- Top Title & Live Search -->
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">Legal Metrology (Packaged Commodities) Rules, 2011</h1>
+          <p class="text-xs text-slate-500 mt-1">Complete statutory reference directory of rules 1–34 and associated schedules</p>
+        </div>
+        <div class="relative w-full md:w-72">
+          <svg class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input 
+            type="text" 
+            id="ruleSearchInput" 
+            placeholder="Search rule number, name, or subject..." 
+            onkeyup="filterRules()"
+            class="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-xl text-xs placeholder-slate-400 focus:outline-none focus:border-[#4638d9]"
+          />
+        </div>
+      </div>
+
+      <!-- Rules 1 to 34 Table -->
+      <div class="bg-white border border-slate-200/90 rounded-2xl overflow-hidden shadow-xs">
+        <div class="p-4 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
+          <h2 class="text-xs font-bold uppercase tracking-wider text-slate-700">Rules 1 to 34 Directory</h2>
+          <span class="text-xs text-indigo-700 font-bold bg-indigo-50 px-2.5 py-0.5 rounded-full border border-indigo-100">34 Rules Total</span>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs border-collapse" id="rulesTable">
+            <thead>
+              <tr class="bg-slate-50 text-slate-400 font-bold uppercase tracking-wider border-b border-slate-100">
+                <th class="py-3 px-5 w-20">Rule</th>
+                <th class="py-3 px-5 w-80">Exact Rule Name / Subject</th>
+                <th class="py-3 px-6">What the Rule Covers</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 font-normal">
+              
+              <tr class="hover:bg-slate-50/60 transition-colors rule-row">
+                <td class="py-3.5 px-5 font-bold font-mono text-indigo-600">1</td>
+                <td class="py-3.5 px-5 font-semibold text-slate-900">Short title, and Commencement</td>
+                <td class="py-3.5 px-6 text-slate-600 leading-relaxed">Names the legislation as the Legal Metrology (Packaged Commodities) Rules, 2011 and specifies their commencement.</td>
+              </tr>
+
+              <tr class="hover:bg-slate-50/60 transition-colors rule-row">
+                <td class="py-3.5 px-5 font-bold font-mono text-indigo-600">2</td>
+                <td class="py-3.5 px-5 font-semibold text-slate-900">Definitions</td>
+                <td class="py-3.5 px-6 text-slate-600 leading-relaxed">Defines important terms used in the Rules, including Act, dealer, lot, manufacturer, maximum permissible error, net quantity, packer, principal display panel, quantity, retail dealer, retail package, retail sale price, section, Schedule, standard package and wholesale package.</td>
+              </tr>
+
+              <tr class="hover:bg-slate-50/60 transition-colors rule-row">
+                <td class="py-3.5 px-5 font-bold font-mono text-indigo-600">3</td>
+                <td class="py-3.5 px-5 font-semibold text-slate-900">Applicability of the Chapter</td>
+                <td class="py-3.5 px-6 text-slate-600 leading-relaxed">Sets out packages to which the retail-sale provisions do not apply, including specified packages above the stated quantity limits and packages meant for industrial or institutional consumers.</td>
+              </tr>
+
+              <tr class="hover:bg-slate-50/60 transition-colors rule-row">
+                <td class="py-3.5 px-5 font-bold font-mono text-indigo-600">4</td>
+                <td class="py-3.5 px-5 font-semibold text-slate-900">Regulation for pre-packing and sale etc. of commodities in packaged form</td>
+                <td class="py-3.5 px-6 text-slate-600 leading-relaxed">Requires packages intended for sale, distribution or delivery to bear the declarations required by the Rules, subject to the provisions stated in the rule.</td>
+              </tr>
+
+              <tr class="hover:bg-slate-50/60 transition-colors rule-row">
+                <td class="py-3.5 px-5 font-bold font-mono text-indigo-600">5</td>
+                <td class="py-3.5 px-5 font-semibold text-slate-900">Specific commodities to be packed and sold in recommended standard packages</td>
+                <td class="py-3.5 px-6 text-slate-600 leading-relaxed">Requires commodities listed in the Second Schedule to be packed in the specified standard quantities; non-standard sizes must carry the prescribed prominent declaration.</td>
+              </tr>
+
+              <tr class="hover:bg-slate-50/60 transition-colors rule-row">
+                <td class="py-3.5 px-5 font-bold font-mono text-indigo-600">6</td>
+                <td class="py-3.5 px-5 font-semibold text-slate-900">Declarations to be made on every package</td>
+                <td class="py-3.5 px-6 text-slate-600 leading-relaxed">Requires definite, plain and conspicuous declarations on every applicable package, including the prescribed manufacturer/packer/importer details, commodity identity, net quantity, date information, retail sale price and other applicable declarations.</td>
+              </tr>
+
+              <tr class="hover:bg-slate-50/60 transition-colors rule-row">
+                <td class="py-3.5 px-5 font-bold font-mono text-indigo-600">7</td>
+                <td class="py-3.5 px-5 font-semibold text-slate-900">Principal display panel-its area, size and letter etc.</td>
+                <td class="py-3.5 px-6 text-slate-600 leading-relaxed">Prescribes requirements concerning the principal display panel and minimum height/size of numerals and letters used for declarations.</td>
+              </tr>
+
+              <tr class="hover:bg-slate-50/60 transition-colors rule-row">
+                <td class="py-3.5 px-5 font-bold font-mono text-indigo-600">8</td>
+                <td class="py-3.5 px-5 font-semibold text-slate-900">Declaration where to appear</td>
+                <td class="py-3.5 px-6 text-slate-600 leading-relaxed">Specifies where declarations required under the Rules are to appear, including requirements concerning the principal display panel and space around the quantity declaration.</td>
+              </tr>
+
+              <tr class="hover:bg-slate-50/60 transition-colors rule-row">
+                <td class="py-3.5 px-5 font-bold font-mono text-indigo-600">9</td>
+                <td class="py-3.5 px-5 font-semibold text-slate-900">Manner in which declaration shall be made</td>
+                <td class="py-3.5 px-6 text-slate-600 leading-relaxed">Requires declarations to be legible and prominent and prescribes presentation requirements for retail sale price, net quantity and other package information.</td>
+              </tr>
+
+              <tr class="hover:bg-slate-50/60 transition-colors rule-row">
+                <td class="py-3.5 px-5 font-bold font-mono text-indigo-600">10</td>
+                <td class="py-3.5 px-5 font-semibold text-slate-900">Declaration of name and address of the manufacturer, etc.</td>
+                <td class="py-3.5 px-6 text-slate-600 leading-relaxed">Prescribes the name and complete address information to be declared for the manufacturer, packer or importer, including requirements for identifying the business.</td>
+              </tr>
+
+              <tr class="hover:bg-slate-50/60 transition-colors rule-row">
+                <td class="py-3.5 px-5 font-bold font-mono text-indigo-600">11</td>
+                <td class="py-3.5 px-5 font-semibold text-slate-900">General provisions relating to declaration of quantity</td>
+                <td class="py-3.5 px-6 text-slate-600 leading-relaxed">Provides requirements for declaring net quantity and addresses quantity variations caused by environmental conditions and other specified circumstances.</td>
+              </tr>
+
+              <tr class="hover:bg-slate-50/60 transition-colors rule-row">
+                <td class="py-3.5 px-5 font-bold font-mono text-indigo-600">12</td>
+                <td class="py-3.5 px-5 font-semibold text-slate-900">Manner in which declaration of quantity shall be</td>
+                <td class="py-3.5 px-6 text-slate-600 leading-relaxed">Specifies how quantity is to be declared in terms of weight, measure or number, and when additional dimensions or number declarations are required.</td>
+              </tr>
+
+              <tr class="hover:bg-slate-50/60 transition-colors rule-row">
+                <td class="py-3.5 px-5 font-bold font-mono text-indigo-600">13</td>
+                <td class="py-3.5 px-5 font-semibold text-slate-900">Statement of units of weight, measure or number</td>
+                <td class="py-3.5 px-6 text-slate-600 leading-relaxed">Prescribes the units and symbols to be used for declarations of weight, length, area, volume and number, including the relevant SI-unit requirements.</td>
+              </tr>
+
+              <tr class="hover:bg-slate-50/60 transition-colors rule-row">
+                <td class="py-3.5 px-5 font-bold font-mono text-indigo-600">14</td>
+                <td class="py-3.5 px-5 font-semibold text-slate-900">Declarations with regard to dimensions of certain commodities</td>
+                <td class="py-3.5 px-6 text-slate-600 leading-relaxed">Requires applicable commodities, including specified dimension-based goods, to carry the prescribed dimensions and related information.</td>
+              </tr>
+
+              <tr class="hover:bg-slate-50/60 transition-colors rule-row">
+                <td class="py-3.5 px-5 font-bold font-mono text-indigo-600">15</td>
+                <td class="py-3.5 px-5 font-semibold text-slate-900">Declaration with regard to dimensions and weight to be made on packages in certain cases</td>
+                <td class="py-3.5 px-6 text-slate-600 leading-relaxed">Requires applicable packages to state dimensions, weight or their combination where the dimensions/weight have the specified relationship to the commodity.</td>
+              </tr>
+
+              <tr class="hover:bg-slate-50/60 transition-colors rule-row">
+                <td class="py-3.5 px-5 font-bold font-mono text-indigo-600">16</td>
+                <td class="py-3.5 px-5 font-semibold text-slate-900">Declarations to be made with regard to the number of usable sheets to be stated</td>
+                <td class="py-3.5 px-6 text-slate-600 leading-relaxed">For packages containing sheets, requires the number of usable sheets and applicable dimensions to be stated.</td>
+              </tr>
+
+              <tr class="hover:bg-slate-50/60 transition-colors rule-row">
+                <td class="py-3.5 px-5 font-bold font-mono text-indigo-600">17</td>
+                <td class="py-3.5 px-5 font-semibold text-slate-900">Declarations with regard to the dimensions of container type commodities</td>
+                <td class="py-3.5 px-6 text-slate-600 leading-relaxed">Prescribes quantity and dimensional declarations for applicable bags, boxes, cups, pans and similar container-type commodities.</td>
+              </tr>
+
+              <tr class="hover:bg-slate-50/60 transition-colors rule-row">
+                <td class="py-3.5 px-5 font-bold font-mono text-indigo-600">18</td>
+                <td class="py-3.5 px-5 font-semibold text-slate-900">Provisions relating to wholesale dealer and retail dealers</td>
+                <td class="py-3.5 px-6 text-slate-600 leading-relaxed">Sets requirements and restrictions concerning sale of packaged commodities, retail sale price and revised prices by wholesale and retail dealers and other covered persons.</td>
+              </tr>
+
+              <tr class="hover:bg-slate-50/60 transition-colors rule-row">
+                <td class="py-3.5 px-5 font-bold font-mono text-indigo-600">19</td>
+                <td class="py-3.5 px-5 font-semibold text-slate-900">Inspection of quantity and error in packages at the premises of the manufacturer or packer</td>
+                <td class="py-3.5 px-6 text-slate-600 leading-relaxed">Provides the procedure for examination/testing of packages at manufacturer or packer premises, including sampling, testing, reporting, permissible error and compliance checks.</td>
+              </tr>
+
+              <tr class="hover:bg-slate-50/60 transition-colors rule-row">
+                <td class="py-3.5 px-5 font-bold font-mono text-indigo-600">20</td>
+                <td class="py-3.5 px-5 font-semibold text-slate-900">Action to be taken on completion of inspection of packages at the premises of the manufacturer or the packer</td>
+                <td class="py-3.5 px-6 text-slate-600 leading-relaxed">Prescribes action where inspection identifies deficient quantity, excessive permissible error or missing mandatory declarations, including seizure and further proceedings.</td>
+              </tr>
+
+              <tr class="hover:bg-slate-50/60 transition-colors rule-row">
+                <td class="py-3.5 px-5 font-bold font-mono text-indigo-600">21</td>
+                <td class="py-3.5 px-5 font-semibold text-slate-900">Inspection of quantity and error in packages at the premises of the wholesale dealer or retail dealer</td>
+                <td class="py-3.5 px-6 text-slate-600 leading-relaxed">Sets the circumstances and procedure for testing packages at wholesale or retail premises, including complaints, suspected tampering/leakage and missing declarations.</td>
+              </tr>
+
+              <tr class="hover:bg-slate-50/60 transition-colors rule-row">
+                <td class="py-3.5 px-5 font-bold font-mono text-indigo-600">22</td>
+                <td class="py-3.5 px-5 font-semibold text-slate-900">Establishment of maximum permissible error on package</td>
+                <td class="py-3.5 px-6 text-slate-600 leading-relaxed">Establishes the basis for maximum permissible error in net quantity and requires relevant causes of quantity variation to be considered.</td>
+              </tr>
+
+              <tr class="hover:bg-slate-50/60 transition-colors rule-row">
+                <td class="py-3.5 px-5 font-bold font-mono text-indigo-600">23</td>
+                <td class="py-3.5 px-5 font-semibold text-slate-900">Deceptive packages to be repacked or in default to be seized</td>
+                <td class="py-3.5 px-6 text-slate-600 leading-relaxed">Provides action for packages that give an exaggerated or misleading impression of quantity, including repacking/re-labelling or seizure where required.</td>
+              </tr>
+
+              <tr class="hover:bg-slate-50/60 transition-colors rule-row">
+                <td class="py-3.5 px-5 font-bold font-mono text-indigo-600">24</td>
+                <td class="py-3.5 px-5 font-semibold text-slate-900">Declarations applicable to be made on every wholesale package</td>
+                <td class="py-3.5 px-6 text-slate-600 leading-relaxed">Requires every applicable wholesale package to carry legible, definite, plain and conspicuous declarations concerning manufacturer/importer/packer, commodity identity and total retail packages or net quantity.</td>
+              </tr>
+
+              <tr class="hover:bg-slate-50/60 transition-colors rule-row">
+                <td class="py-3.5 px-5 font-bold font-mono text-indigo-600">25</td>
+                <td class="py-3.5 px-5 font-semibold text-slate-900">Restrictions on sale of export packages in India</td>
+                <td class="py-3.5 px-6 text-slate-600 leading-relaxed">Restricts sale in India of export packages unless they are re-packed or re-labelled in accordance with the applicable retail-package provisions.</td>
+              </tr>
+
+              <tr class="hover:bg-slate-50/60 transition-colors rule-row">
+                <td class="py-3.5 px-5 font-bold font-mono text-indigo-600">26</td>
+                <td class="py-3.5 px-5 font-semibold text-slate-900">Exemption in respect of certain packages</td>
+                <td class="py-3.5 px-6 text-slate-600 leading-relaxed">Lists specified packages exempt from the Rules, including certain very small quantities, restaurant/hotel fast-food packages, specified drug formulations and certain agricultural produce packages.</td>
+              </tr>
+
+              <tr class="hover:bg-slate-50/60 transition-colors rule-row">
+                <td class="py-3.5 px-5 font-bold font-mono text-indigo-600">27</td>
+                <td class="py-3.5 px-5 font-semibold text-slate-900">Registration of manufacturers, packers and importers</td>
+                <td class="py-3.5 px-6 text-slate-600 leading-relaxed">Requires persons/entities who pre-pack or import commodities for sale, distribution or delivery to apply for registration and prescribes application details and registration procedure.</td>
+              </tr>
+
+              <tr class="hover:bg-slate-50/60 transition-colors rule-row">
+                <td class="py-3.5 px-5 font-bold font-mono text-indigo-600">28</td>
+                <td class="py-3.5 px-5 font-semibold text-slate-900">Registration of shorter address permissible</td>
+                <td class="py-3.5 px-6 text-slate-600 leading-relaxed">Allows a manufacturer or packer to apply for registration of a shorter address where it is sufficient to identify the manufacturer or packer.</td>
+              </tr>
+
+              <tr class="hover:bg-slate-50/60 transition-colors rule-row">
+                <td class="py-3.5 px-5 font-bold font-mono text-indigo-600">29</td>
+                <td class="py-3.5 px-5 font-semibold text-slate-900">Registration of manufacturers and packers, etc.</td>
+                <td class="py-3.5 px-6 text-slate-600 leading-relaxed">Requires the registering authority to maintain a register of registered manufacturers or packers and makes the register available for public inspection.</td>
+              </tr>
+
+              <tr class="hover:bg-slate-50/60 transition-colors rule-row">
+                <td class="py-3.5 px-5 font-bold font-mono text-indigo-600">30</td>
+                <td class="py-3.5 px-5 font-semibold text-slate-900">Compilation of lists of manufacturers or packers and their circulation</td>
+                <td class="py-3.5 px-6 text-slate-600 leading-relaxed">Requires the Director/Controller to compile State-wise lists of registered manufacturers and packers and circulate them to the concerned State Controller.</td>
+              </tr>
+
+              <tr class="hover:bg-slate-50/60 transition-colors rule-row">
+                <td class="py-3.5 px-5 font-bold font-mono text-indigo-600">31</td>
+                <td class="py-3.5 px-5 font-semibold text-slate-900">General</td>
+                <td class="py-3.5 px-6 text-slate-600 leading-relaxed">Requires advertisements mentioning the retail sale price of a pre-packaged commodity to also state its net quantity or number, with the specified font-size requirement.</td>
+              </tr>
+
+              <tr class="hover:bg-slate-50/60 transition-colors rule-row">
+                <td class="py-3.5 px-5 font-bold font-mono text-indigo-600">32</td>
+                <td class="py-3.5 px-5 font-semibold text-slate-900">Penalty for contravention of Rules</td>
+                <td class="py-3.5 px-6 text-slate-600 leading-relaxed">Prescribes fines for contraventions of Rules 27 to 31 and for other contraventions where no other punishment is provided.</td>
+              </tr>
+
+              <tr class="hover:bg-slate-50/60 transition-colors rule-row">
+                <td class="py-3.5 px-5 font-bold font-mono text-indigo-600">33</td>
+                <td class="py-3.5 px-5 font-semibold text-slate-900">Power to relax</td>
+                <td class="py-3.5 px-6 text-slate-600 leading-relaxed">Allows the Central Government, in the circumstances specified, to permit relaxation of one or more provisions for a reasonable period with corrective measures.</td>
+              </tr>
+
+              <tr class="hover:bg-slate-50/60 transition-colors rule-row">
+                <td class="py-3.5 px-5 font-bold font-mono text-indigo-600">34</td>
+                <td class="py-3.5 px-5 font-semibold text-slate-900">Repeal and savings</td>
+                <td class="py-3.5 px-6 text-slate-600 leading-relaxed">Repeals the Standards of Weights and Measures (Packaged Commodities) Rules, 1977 while preserving specified previous operations, rights, liabilities, penalties and proceedings.</td>
+              </tr>
+
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Statutory Schedules Table -->
+      <div class="bg-white border border-slate-200/90 rounded-2xl overflow-hidden shadow-xs">
+        <div class="p-4 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
+          <h2 class="text-xs font-bold uppercase tracking-wider text-slate-700">Schedules in the Same Rules</h2>
+          <span class="text-xs text-amber-700 font-bold bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-100">First to Seventh Schedule</span>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="bg-slate-50 text-slate-400 font-bold uppercase tracking-wider border-b border-slate-100">
+                <th class="py-3 px-5 w-44">Schedule</th>
+                <th class="py-3 px-5 w-72">Title / Subject</th>
+                <th class="py-3 px-6">What it Covers</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 font-normal">
+              <tr class="hover:bg-slate-50/60 transition-colors">
+                <td class="py-3.5 px-5 font-bold text-slate-900">First Schedule</td>
+                <td class="py-3.5 px-5 font-semibold text-indigo-600">Maximum permissible errors</td>
+                <td class="py-3.5 px-6 text-slate-600 leading-relaxed">Sets maximum permissible error for net quantity declared by weight/volume and by length, area or number.</td>
+              </tr>
+              <tr class="hover:bg-slate-50/60 transition-colors">
+                <td class="py-3.5 px-5 font-bold text-slate-900">Second Schedule</td>
+                <td class="py-3.5 px-5 font-semibold text-indigo-600">Commodities to be packed in specified quantities</td>
+                <td class="py-3.5 px-6 text-slate-600 leading-relaxed">Lists specified commodities and the standard quantities in which they are to be packed.</td>
+              </tr>
+              <tr class="hover:bg-slate-50/60 transition-colors">
+                <td class="py-3.5 px-5 font-bold text-slate-900">Third Schedule</td>
+                <td class="py-3.5 px-5 font-semibold text-indigo-600 leading-tight">Declaration of quantity in relation to commodities which may be qualified by the words 'when packed'</td>
+                <td class="py-3.5 px-6 text-slate-600 leading-relaxed">Identifies commodities for which quantity declarations may be qualified by 'when packed'.</td>
+              </tr>
+              <tr class="hover:bg-slate-50/60 transition-colors">
+                <td class="py-3.5 px-5 font-bold text-slate-900">Fourth Schedule</td>
+                <td class="py-3.5 px-5 font-semibold text-indigo-600">Exceptions referred to in Rule 12(2)</td>
+                <td class="py-3.5 px-6 text-slate-600 leading-relaxed">Lists commodities for which quantity may be declared by weight, measure or number as specified.</td>
+              </tr>
+              <tr class="hover:bg-slate-50/60 transition-colors">
+                <td class="py-3.5 px-5 font-bold text-slate-900">Fifth Schedule</td>
+                <td class="py-3.5 px-5 font-semibold text-indigo-600">Manner of selection of sample packages</td>
+                <td class="py-3.5 px-6 text-slate-600 leading-relaxed">Prescribes sample sizes and selection procedures for determining net quantity.</td>
+              </tr>
+              <tr class="hover:bg-slate-50/60 transition-colors">
+                <td class="py-3.5 px-5 font-bold text-slate-900">Sixth Schedule</td>
+                <td class="py-3.5 px-5 font-semibold text-indigo-600 leading-tight">Determination of the Net Quantity of Commodities contained in Packages</td>
+                <td class="py-3.5 px-6 text-slate-600 leading-relaxed">Provides equipment, working-standard and testing instructions for determining net quantity and error.</td>
+              </tr>
+              <tr class="hover:bg-slate-50/60 transition-colors">
+                <td class="py-3.5 px-5 font-bold text-slate-900">Seventh Schedule</td>
+                <td class="py-3.5 px-5 font-semibold text-indigo-600">Forms</td>
+                <td class="py-3.5 px-6 text-slate-600 leading-relaxed">Contains the prescribed forms/data sheets associated with inspection and testing under the Rules.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <script>
+    // Search filter across the 34 statutory rules
+    function filterRules() {
+      const input = document.getElementById('ruleSearchInput').value.toLowerCase();
+      const rows = document.querySelectorAll('.rule-row');
+
+      rows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        if (text.includes(input)) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    }
+
+    // Portal Dropdown Toggle
+    const portalBtn = document.getElementById('portal-btn');
+    const portalDropdown = document.getElementById('portal-dropdown');
+    const dropdownChevron = document.getElementById('dropdown-chevron');
+
+    if (portalBtn && portalDropdown) {
+      portalBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        portalDropdown.classList.toggle('hidden');
+        dropdownChevron.classList.toggle('rotate-180');
+      });
+
+      document.addEventListener('click', (e) => {
+        const container = document.getElementById('portal-menu-container');
+        if (container && !container.contains(e.target)) {
+          portalDropdown.classList.add('hidden');
+          dropdownChevron.classList.remove('rotate-180');
+        }
+      });
+    }
+  </script>
+</body>
+</html>

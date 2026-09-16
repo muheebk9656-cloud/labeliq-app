@@ -1,0 +1,155 @@
+<!-- Reusable Scan Label Modal -->
+<div 
+  id="scan-modal" 
+  class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-[3px] z-50 flex items-center justify-center p-4 transition-all"
+>
+  <div class="w-full max-w-[540px] bg-white rounded-3xl shadow-2xl border border-slate-100 p-7 sm:p-8 space-y-6 relative">
+    
+    <!-- Modal Header -->
+    <div class="flex items-start justify-between">
+      <div>
+        <h2 class="text-[19px] font-bold text-slate-900 tracking-tight leading-snug">Scan Packaging Label</h2>
+        <p class="text-[13px] text-slate-400 font-normal mt-0.5" id="scan-modal-subtitle">
+          Extract declarations & check statutory LM(PC) compliance
+        </p>
+      </div>
+      <button 
+        type="button" 
+        onclick="closeScanModal()" 
+        class="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-50 transition-colors"
+      >
+        <svg class="w-5 h-5 stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Scan & Upload Box -->
+    <div 
+      id="scanDropzone"
+      onclick="document.getElementById('scanFileInput').click()"
+      class="border-2 border-dashed border-indigo-200/80 hover:border-indigo-500 bg-[#f8faff] rounded-2xl py-12 px-6 flex flex-col items-center justify-center text-center cursor-pointer transition-all group"
+    >
+      <input type="file" id="scanFileInput" class="hidden" accept="image/*,.pdf" capture="environment" />
+      
+      <!-- Scan Icon -->
+      <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 border border-indigo-100 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
+        <svg class="w-6 h-6 stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+      </div>
+
+      <p id="scanDropText" class="text-[14px] font-semibold text-slate-800 group-hover:text-indigo-600 transition-colors">
+        Click to take photo or drop artwork
+      </p>
+      <p class="text-[12px] text-slate-400 mt-1 font-normal">
+        Supports JPG, PNG, WEBP, or PDF (up to 20MB)
+      </p>
+    </div>
+
+    <!-- Scan Form Details -->
+    <form id="scanForm" action="/scan/process" method="POST" class="space-y-4">
+      <input type="hidden" id="scanSourcePortal" name="sourcePortal" value="business" />
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">
+          Commodity Type / Category
+        </label>
+        <select 
+          name="commodityCategory" 
+          class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm text-slate-800 bg-white focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100 transition-all"
+        >
+          <option value="Food & Beverages">Food & Beverages</option>
+          <option value="Cosmetics & Personal Care">Cosmetics & Personal Care</option>
+          <option value="Household Commodities">Household Commodities</option>
+          <option value="Medical & Health">Medical & Health</option>
+          <option value="Textiles & Apparel">Textiles & Apparel</option>
+        </select>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center justify-between gap-3 pt-2">
+        <button 
+          type="button" 
+          onclick="closeScanModal()" 
+          class="flex-1 py-2.5 px-4 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-colors text-center"
+        >
+          Cancel
+        </button>
+        <button 
+          type="submit" 
+          class="flex-1 py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-md transition-all flex items-center justify-center gap-1.5"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+          </svg>
+          <span>Run Compliance Scan</span>
+        </button>
+      </div>
+    </form>
+
+  </div>
+</div>
+
+<script>
+  function openScanModal(portalType = 'business') {
+    const modal = document.getElementById('scan-modal');
+    const sourcePortalInput = document.getElementById('scanSourcePortal');
+    const subtitle = document.getElementById('scan-modal-subtitle');
+
+    if (sourcePortalInput) sourcePortalInput.value = portalType;
+    if (subtitle) {
+      subtitle.textContent = portalType === 'legal'
+        ? 'Enforcement Field Scan — Run instant statutory compliance check against LM(PC) Rules'
+        : 'Enterprise Packaging Scan — Screen barcode, MRP, declarations & font sizing';
+    }
+
+    if (modal) modal.classList.remove('hidden');
+  }
+
+  function closeScanModal() {
+    const modal = document.getElementById('scan-modal');
+    if (modal) modal.classList.add('hidden');
+  }
+
+  const scanModalEl = document.getElementById('scan-modal');
+  if (scanModalEl) {
+    scanModalEl.addEventListener('click', function(e) {
+      if (e.target === this) closeScanModal();
+    });
+  }
+
+  const scanDropzone = document.getElementById('scanDropzone');
+  const scanFileInput = document.getElementById('scanFileInput');
+  const scanDropText = document.getElementById('scanDropText');
+
+  if (scanDropzone && scanFileInput) {
+    ['dragenter', 'dragover'].forEach(evt => {
+      scanDropzone.addEventListener(evt, (e) => {
+        e.preventDefault();
+        scanDropzone.classList.add('border-indigo-600', 'bg-indigo-50/40');
+      });
+    });
+
+    ['dragleave', 'drop'].forEach(evt => {
+      scanDropzone.addEventListener(evt, (e) => {
+        e.preventDefault();
+        scanDropzone.classList.remove('border-indigo-600', 'bg-indigo-50/40');
+      });
+    });
+
+    scanDropzone.addEventListener('drop', (e) => {
+      if (e.dataTransfer.files.length > 0) {
+        scanFileInput.files = e.dataTransfer.files;
+        scanDropText.textContent = `Scanned File: ${e.dataTransfer.files[0].name}`;
+      }
+    });
+
+    scanFileInput.addEventListener('change', () => {
+      if (scanFileInput.files.length > 0) {
+        scanDropText.textContent = `Scanned File: ${scanFileInput.files[0].name}`;
+      }
+    });
+  }
+</script>

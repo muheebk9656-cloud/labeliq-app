@@ -1,0 +1,7 @@
+At LabelIQ, we make packaged product compliance simple, fast, and accessible.
+
+Our solution helps users verify whether a packaged product contains the required legal declarations on its label. By scanning the product’s code, LabelIQ analyzes the available product information and checks it against applicable labelling requirements.
+
+Instead of relying entirely on time-consuming manual inspection, LabelIQ provides a quick and easy way to identify missing or potentially non-compliant declarations. The system presents the result in a simple, easy-to-understand format, helping users know whether a product has passed the required checks or needs further verification.
+
+LabelIQ is designed to support a more efficient, transparent, and technology-driven approach to packaged product labelling compliance.

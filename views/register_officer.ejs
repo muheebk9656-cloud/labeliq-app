@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Directorate Admin - Register Officers</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: { extend: { fontFamily: { sans: ['Inter', 'sans-serif'] } } }
+    }
+  </script>
+</head>
+<body class="bg-[#FAFBFD] font-sans text-slate-800 min-h-screen flex flex-col antialiased">
+
+  <header class="w-full bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <span class="px-2.5 py-1 rounded bg-amber-500 text-slate-950 font-bold text-xs uppercase tracking-wider">Admin</span>
+        <span class="font-bold text-base">Legal Metrology Directorate — Central Registry</span>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <a href="/legal" class="text-xs font-semibold text-slate-300 hover:text-white transition-colors">Go to Case Queue</a>
+        <a href="/signout?portal=legal" class="px-4 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 transition-colors">Sign Out</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto w-full px-6 py-10 flex-1 grid grid-cols-1 md:grid-cols-3 gap-8">
+    
+    <!-- Registration Form -->
+    <div class="md:col-span-1 bg-white rounded-2xl border border-slate-200/80 p-6 shadow-xs h-fit space-y-4">
+      <div>
+        <h2 class="text-lg font-bold text-slate-900">Register Officer</h2>
+        <p class="text-xs text-slate-500">Authorize enforcement badge credentials</p>
+      </div>
+
+      <% if (error) { %>
+        <div class="p-3 rounded-xl bg-red-50 text-red-600 text-xs font-medium"><%= error %></div>
+      <% } %>
+
+      <% if (success) { %>
+        <div class="p-3 rounded-xl bg-emerald-50 text-emerald-700 text-xs font-medium"><%= success %></div>
+      <% } %>
+
+      <form action="/legal/admin/register" method="POST" class="space-y-3.5">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Full Name</label>
+          <input type="text" name="officerName" required placeholder="Insp. K. V. Raman" class="w-full px-3.5 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-[#4338CA]" />
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Badge ID</label>
+          <input type="text" name="badgeNumber" required placeholder="LM-HAR-205" class="w-full px-3.5 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-[#4338CA]" />
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Portal Username</label>
+          <input type="text" name="username" required placeholder="officer_username" class="w-full px-3.5 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-[#4338CA]" />
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Password</label>
+          <input type="password" name="password" required placeholder="••••••••" class="w-full px-3.5 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-[#4338CA]" />
+        </div>
+
+        <button type="submit" class="w-full py-2.5 rounded-lg bg-[#4338CA] hover:bg-[#3730A3] text-white text-xs font-bold uppercase tracking-wider shadow-sm transition-all">
+          Authorize Officer
+        </button>
+      </form>
+    </div>
+
+    <!-- Authorized Officers Table -->
+    <div class="md:col-span-2 bg-white rounded-2xl border border-slate-200/80 overflow-hidden shadow-xs h-fit">
+      <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+        <div>
+          <h3 class="text-base font-bold text-slate-900">Registered Enforcement Officers</h3>
+          <p class="text-xs text-slate-400">Total authorized: <%= officers.length %></p>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs border-collapse">
+          <thead>
+            <tr class="bg-slate-50 text-slate-400 font-bold uppercase tracking-wider border-b border-slate-100">
+              <th class="py-3 px-5">OFFICER</th>
+              <th class="py-3 px-5">BADGE ID</th>
+              <th class="py-3 px-5">USERNAME</th>
+              <th class="py-3 px-5">STATUS</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            <% officers.forEach(officer => { %>
+              <tr class="hover:bg-slate-50/50">
+                <td class="py-3.5 px-5 font-bold text-slate-800"><%= officer.name %></td>
+                <td class="py-3.5 px-5 font-mono text-slate-500"><%= officer.badge || 'LM-REG-DEFAULT' %></td>
+                <td class="py-3.5 px-5 font-mono text-slate-600">@<%= officer.username %></td>
+                <td class="py-3.5 px-5">
+                  <span class="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-semibold text-[10px]">Active</span>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+</body>
+</html>

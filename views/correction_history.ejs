@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LabelIQ Business - Correction History</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          colors: {
+            brand: { DEFAULT: '#4f46e5', hover: '#4338ca' }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-[#fcfdff] text-slate-700 antialiased font-sans h-screen overflow-hidden flex flex-col">
+
+  <!-- Fixed Top Header (h-16 shrink-0) -->
+  <header class="w-full bg-white border-b border-slate-100 h-16 shrink-0 z-50">
+    <div class="px-8 h-full flex items-center justify-between">
+      <div class="flex items-center gap-10">
+        <a href="/business" class="flex items-center gap-2.5">
+          <div class="w-7 h-7 rounded-lg bg-[#4f46e5] flex items-center justify-center text-white font-bold text-sm">
+            IQ
+          </div>
+          <span class="text-xl font-bold text-slate-900 tracking-tight">LabelIQ</span>
+        </a>
+
+        <nav class="hidden md:flex items-center gap-8 text-[14px] font-medium text-slate-600">
+          <a href="/business" class="hover:text-slate-900 transition-colors">Catalog</a>
+          <a href="/verification" class="hover:text-slate-900 transition-colors">Verification Rules</a>
+        </nav>
+      </div>
+
+      <!-- Right Portal Switcher & Sign Out -->
+      <div class="flex items-center gap-6">
+        <div class="relative" id="portal-menu-container">
+          <button id="portal-btn" type="button" class="flex items-center gap-1.5 text-[14px] font-medium text-slate-800 focus:outline-none">
+            <span>Business Portal</span>
+            <svg id="dropdown-chevron" class="w-4 h-4 text-slate-400 stroke-[2] transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+
+          <div id="portal-dropdown" class="hidden absolute right-0 top-full mt-2 w-56 bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden z-50 py-1">
+            <a href="/signout?portal=consumer" class="w-full px-5 py-3 text-left text-[14px] font-medium text-slate-800 hover:bg-slate-50 block">Consumer Portal</a>
+            <a href="/business" class="w-full px-5 py-3 text-left text-[14px] font-medium text-[#4f46e5] bg-[#f5f6ff] flex items-center justify-between block">
+              <span>Business Portal</span>
+              <svg class="w-3.5 h-3.5 text-[#4f46e5] stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
+            </a>
+            <a href="/signout?portal=legal" class="w-full px-5 py-3 text-left text-[14px] font-medium text-slate-800 hover:bg-slate-50 block">Legal Authority</a>
+          </div>
+        </div>
+
+        <a href="/signout?portal=business" class="px-4 py-2 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-700 font-medium text-[14px] transition-colors">
+          Sign Out
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Viewport Lock Layout: Fixed Sidebar + Scrollable Main Content -->
+  <div class="flex flex-1 h-[calc(100vh-4rem)] overflow-hidden">
+    
+    <!-- Sidebar -->
+    <aside class="w-64 border-r border-slate-100 bg-white flex flex-col justify-between py-6 px-4 shrink-0">
+      <div class="space-y-6">
+        
+        <!-- Company Header -->
+        <div class="flex items-center justify-between px-3 py-1">
+          <div>
+            <h2 class="text-sm font-bold text-slate-900 leading-tight"><%= data.company.name %></h2>
+            <p class="text-xs text-slate-400 mt-0.5"><%= data.company.role %></p>
+          </div>
+          <button class="text-slate-400 hover:text-slate-600">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Navigation Links -->
+        <nav class="space-y-1">
+          <!-- Active Tab: Overview -->
+          <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-[#f5f6ff] text-[#4638d9] font-semibold text-[14px]">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+              <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+              <rect x="14" y="14" width="7" height="7" rx="1"></rect>
+              <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+            </svg>
+            Overview
+          </a>
+
+          <a 
+            href="#" 
+            onclick="openArtworkModal(); return false;" 
+            class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium text-[14px] transition-colors"
+>
+            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            <span>Artwork Pre-Check</span>
+          </a>
+          <a 
+            href="#" 
+            onclick="openScanModal('business'); return false;" 
+            class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium text-[14px] transition-colors"
+            >
+            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+            </svg>
+            <span>Scan Commodity</span>
+          </a>
+
+
+          <a 
+            href="/business/corrections" 
+            class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium text-[14px] transition-colors"
+            >
+            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>Correction History</span>
+          </a>
+        </nav>
+      </div>
+      <div class="pt-4 border-t border-slate-100 px-2 text-center">
+        <span class="text-[11px] text-slate-400 font-medium">Auto Audit Trail Active</span>
+      </div>
+    </aside>
+
+    <!-- ================= SCROLLABLE WORKSPACE ================= -->
+    <main class="flex-1 px-10 py-8 overflow-y-auto h-full max-w-6xl space-y-8 pb-16">
+      
+      <!-- Top Title Bar -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5">
+        <div>
+          <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Label Correction History</h1>
+          <p class="text-xs text-slate-500 mt-1">Audit log of packaging revisions, legal citations, and compliance re-scans</p>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <a 
+            href="/business" 
+            class="px-4 py-2 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-colors"
+          >
+            ← Back to SKU Library
+          </a>
+          <button 
+            type="button" 
+            onclick="openArtworkModal()" 
+            class="px-4 py-2 rounded-xl bg-[#4b3ce5] hover:bg-[#3f30d4] text-white text-xs font-semibold flex items-center gap-2 shadow-xs transition-colors"
+          >
+            <svg class="w-4 h-4 stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+            </svg>
+            <span>New Pre-Check</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Summary Stat Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+        <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Corrections</span>
+          <p class="text-3xl font-extrabold text-slate-900 mt-2"><%= data.metrics.totalCorrections %></p>
+          <span class="text-[11px] text-slate-400 mt-1">Applied across all product files</span>
+        </div>
+
+        <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs">
+          <span class="text-xs font-bold uppercase tracking-wider text-emerald-600">Resolved & Compliant</span>
+          <p class="text-3xl font-extrabold text-emerald-600 mt-2"><%= data.metrics.resolvedCount %></p>
+          <span class="text-[11px] text-slate-400 mt-1">Passed secondary validation scan</span>
+        </div>
+
+        <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs">
+          <span class="text-xs font-bold uppercase tracking-wider text-amber-600">Pending Review</span>
+          <p class="text-3xl font-extrabold text-amber-500 mt-2"><%= data.metrics.pendingReviewCount %></p>
+          <span class="text-[11px] text-slate-400 mt-1">Awaiting pre-print verification</span>
+        </div>
+      </div>
+
+      <!-- Audit History Table -->
+      <div class="bg-white border border-slate-200/90 rounded-2xl overflow-hidden shadow-xs">
+        <div class="p-4 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <h2 class="text-xs font-bold uppercase tracking-wider text-slate-700">Detailed Revision Timeline</h2>
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+            <span class="text-xs text-slate-500">Live statutory tracking</span>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="bg-slate-50/80 text-slate-400 font-bold uppercase tracking-wider border-b border-slate-100">
+                <th class="py-3 px-5">Revision ID</th>
+                <th class="py-3 px-5">Commodity & SKU</th>
+                <th class="py-3 px-5">Rule Non-Compliance</th>
+                <th class="py-3 px-5">Before & After Changes</th>
+                <th class="py-3 px-5">Timestamp</th>
+                <th class="py-3 px-5">Status</th>
+                <th class="py-3 px-5 text-right">Audit Sheet</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              <% data.history.forEach(item => { %>
+                <tr class="hover:bg-slate-50/60 transition-colors">
+                  <td class="py-4 px-5 font-mono font-bold text-indigo-600 align-top"><%= item.revisionId %></td>
+                  
+                  <td class="py-4 px-5 align-top">
+                    <p class="font-bold text-slate-900"><%= item.commodityName %></p>
+                    <span class="text-[11px] font-mono text-slate-400"><%= item.sku %></span>
+                  </td>
+
+                  <td class="py-4 px-5 align-top">
+                    <span class="px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 border border-rose-100 font-mono font-semibold text-[11px]">
+                      <%= item.ruleCitation %>
+                    </span>
+                    <p class="text-[11px] text-slate-500 mt-1"><%= item.violationType %></p>
+                  </td>
+
+                  <td class="py-4 px-5 space-y-1 align-top max-w-xs">
+                    <div class="text-[11px] text-red-600 bg-red-50/80 px-2 py-1 rounded border border-red-100">
+                      <span class="font-semibold">Was:</span> <%= item.previousValue %>
+                    </div>
+                    <div class="text-[11px] text-emerald-700 bg-emerald-50 px-2 py-1 rounded border border-emerald-100">
+                      <span class="font-semibold">Revised:</span> <%= item.correctedValue %>
+                    </div>
+                  </td>
+
+                  <td class="py-4 px-5 text-slate-500 font-mono align-top"><%= item.timestamp %></td>
+
+                  <td class="py-4 px-5 align-top">
+                    <% if (item.status === 'Resolved') { %>
+                      <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        <svg class="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                        Resolved
+                      </span>
+                    <% } else { %>
+                      <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+                        <svg class="w-3 h-3 text-amber-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                          <circle cx="12" cy="12" r="9" />
+                          <polyline points="12 7 12 12 15 15" />
+                        </svg>
+                        Pending Scan
+                      </span>
+                    <% } %>
+                  </td>
+
+                  <td class="py-4 px-5 text-right align-top">
+                    <button class="px-3 py-1.5 rounded-lg border border-slate-200 hover:border-indigo-500 hover:text-indigo-600 text-slate-700 font-semibold text-xs transition-colors shadow-2xs">
+                      View Diff
+                    </button>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Reusable Artwork Pre-Check Modal Included -->
+  <%- include('artwork_check') %>
+  <%- include('scan_modal') %>
+
+  <script>
+    const portalBtn = document.getElementById('portal-btn');
+    const portalDropdown = document.getElementById('portal-dropdown');
+    const dropdownChevron = document.getElementById('dropdown-chevron');
+
+    if (portalBtn && portalDropdown) {
+      portalBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        portalDropdown.classList.toggle('hidden');
+        dropdownChevron.classList.toggle('rotate-180');
+      });
+
+      document.addEventListener('click', (e) => {
+        const container = document.getElementById('portal-menu-container');
+        if (container && !container.contains(e.target)) {
+          portalDropdown.classList.add('hidden');
+          dropdownChevron.classList.remove('rotate-180');
+        }
+      });
+    }
+  </script>
+</body>
+</html>

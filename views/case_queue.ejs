@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Legal Directorate - Case Queue</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          keyframes: {
+            blink: {
+              '0%, 100%': { opacity: '1', transform: 'scale(1)' },
+              '50%': { opacity: '0.3', transform: 'scale(0.85)' }
+            }
+          },
+          animation: {
+            blinker: 'blink 1.2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-[#fcfdff] text-slate-700 font-sans antialiased min-h-screen flex flex-col">
+
+  <!-- Top Navbar -->
+  <header class="w-full bg-white border-b border-slate-100 sticky top-0 z-50">
+    <div class="px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-10">
+        <a href="/" class="flex items-center gap-2.5">
+          <div class="w-7 h-7 rounded-lg bg-[#4638d9] flex items-center justify-center text-white font-bold text-sm">
+            IQ
+          </div>
+          <span class="text-xl font-bold text-slate-900 tracking-tight">LabelIQ</span>
+        </a>
+
+        <nav class="hidden md:flex items-center gap-8 text-[14px] font-medium text-slate-600">
+          <a href="/legal" class="hover:text-slate-900 transition-colors">Overview</a>
+          <a href="/legal/case-queue" class="text-[#4638d9] font-semibold">Case Queue</a>
+          <a href="/verification" class="hover:text-slate-900 transition-colors">Verification</a>
+        </nav>
+      </div>
+
+      <div class="flex items-center gap-6">
+        <div class="relative" id="portal-menu-container">
+          <button id="portal-btn" type="button" class="flex items-center gap-1.5 text-[14px] font-medium text-slate-800 focus:outline-none">
+            <span>Legal Authority</span>
+            <svg id="dropdown-chevron" class="w-4 h-4 text-slate-400 stroke-[2] transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+
+          <div id="portal-dropdown" class="hidden absolute right-0 top-full mt-2 w-56 bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden z-50 py-1">
+            <a href="/signout?portal=consumer" class="w-full px-5 py-3 text-left text-[14px] font-medium text-slate-800 hover:bg-slate-50 block">Consumer Portal</a>
+            <a href="/signout?portal=business" class="w-full px-5 py-3 text-left text-[14px] font-medium text-slate-800 hover:bg-slate-50 block">Business Portal</a>
+            <a href="/legal" class="w-full px-5 py-3 text-left text-[14px] font-medium text-[#4638d9] bg-[#f5f6ff] flex items-center justify-between block">
+              <span>Legal Authority</span>
+              <svg class="w-3.5 h-3.5 text-[#4638d9] stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
+            </a>
+          </div>
+        </div>
+
+        <a href="/signout?portal=legal" class="px-4 py-2 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-700 font-medium text-[14px] transition-colors">
+          Sign Out
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <div class="flex flex-1">
+    
+    <!-- Sidebar -->
+    <aside class="w-64 border-r border-slate-100 bg-white flex flex-col justify-between py-6 px-4 shrink-0">
+      <div class="space-y-6">
+        <div class="flex items-center gap-3 px-2">
+          <div class="w-10 h-10 rounded-full bg-amber-50 text-amber-700 font-bold text-xs flex items-center justify-center border border-amber-200">
+            <%= data.officer.initials %>
+          </div>
+          <div>
+            <h2 class="text-sm font-bold text-slate-900 leading-tight"><%= data.officer.name %></h2>
+            <p class="text-xs text-slate-400"><%= data.officer.role %></p>
+          </div>
+        </div>
+
+        <nav class="space-y-1">
+          <a href="/legal" class="block px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium text-[14px] transition-colors">
+            Overview
+          </a>
+          <a href="/legal/case-queue" class="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-[#f5f6ff] text-[#4638d9] font-semibold text-[14px]">
+            <span>Case Queue</span>
+            <span class="w-5 h-5 rounded-full bg-[#dc2626] text-white text-[11px] font-bold flex items-center justify-center">
+              <%= data.metrics.newCases %>
+            </span>
+          </a>
+          <a href="#" class="block px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium text-[14px] transition-colors">Inspection Logs</a>
+          <a href="#" class="block px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium text-[14px] transition-colors">Audit Trail</a>
+        </nav>
+      </div>
+
+      <div class="pt-4 border-t border-slate-100 px-2">
+        <a href="/legal/admin/auth" class="w-full py-2 px-3 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors">
+          <span>+ Register Officers (Admin)</span>
+        </a>
+      </div>
+    </aside>
+
+    <!-- Main Workspace -->
+    <main class="flex-1 px-10 py-8 overflow-y-auto max-w-5xl">
+      
+      <!-- Top Title -->
+      <div>
+        <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">CASE QUEUE</h1>
+        <p class="text-xs text-slate-400 mt-1">Priority triage based on critical statutory non-compliances</p>
+      </div>
+
+      <!-- Top Summary Cards from Notebook Layout -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-8 max-w-xl">
+        
+        <!-- Total Cases Card -->
+        <div class="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs flex flex-col justify-between">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-400">TOTAL CASES</span>
+          <p class="text-4xl font-extrabold text-slate-900 mt-3"><%= data.metrics.totalCases %></p>
+          <span class="text-[11px] text-slate-400 mt-1">Active regulatory files</span>
+        </div>
+
+        <!-- New Cases Card with Blinking Dot -->
+        <div class="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs flex flex-col justify-between relative overflow-hidden">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">NEW</span>
+            
+            <!-- Animated Blinking Light Indicator -->
+            <div class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-50 border border-red-100">
+              <span class="w-2.5 h-2.5 rounded-full bg-red-500 animate-blinker shadow-sm shadow-red-500/50"></span>
+              <span class="text-[10px] font-bold text-red-600 uppercase tracking-tight">Live</span>
+            </div>
+          </div>
+
+          <p class="text-4xl font-extrabold text-red-600 mt-3"><%= data.metrics.newCases %></p>
+          <span class="text-[11px] text-slate-400 mt-1">Immediate action required</span>
+        </div>
+
+      </div>
+
+      <!-- Section Title & Priority Legend -->
+      <div class="mt-10 flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 pb-3">
+        <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wider">Active Commodity Queue</h2>
+        
+        <div class="flex items-center gap-4 text-xs font-medium">
+          <span class="flex items-center gap-1.5 text-slate-600">
+            <span class="w-2.5 h-2.5 rounded-full bg-red-600"></span> High Priority (Critical Missing Info)
+          </span>
+          <span class="flex items-center gap-1.5 text-slate-600">
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> Medium Priority
+          </span>
+        </div>
+      </div>
+
+      <!-- Case Queue Rows Matching Notebook Grid -->
+      <div class="mt-6 space-y-4">
+        <% data.cases.forEach(item => { %>
+          <div class="bg-white border border-slate-200/90 hover:border-slate-300 rounded-2xl p-5 shadow-xs transition-all flex flex-col md:flex-row md:items-center justify-between gap-4">
+            
+            <!-- Left: Case ID & Commodity Name -->
+            <div class="space-y-1 min-w-[240px]">
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-mono font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-md border border-indigo-100">
+                  <%= item.caseId %>
+                </span>
+                <span class="text-xs text-slate-400"><%= item.date %></span>
+              </div>
+              <h3 class="text-base font-bold text-slate-900 tracking-tight pt-1">
+                <%= item.commodityName %>
+              </h3>
+            </div>
+
+            <!-- Middle: Violation Pill -->
+            <div class="flex-1 flex md:justify-center">
+              <div class="px-4 py-1.5 rounded-full bg-slate-100 border border-slate-200/80 text-slate-700 text-xs font-semibold flex items-center gap-2 shadow-xs">
+                <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+                <span><%= item.violation %></span>
+              </div>
+            </div>
+
+            <!-- Right: Priority Badge (Red for High, Orange for Medium) -->
+            <div class="flex items-center justify-between md:justify-end gap-3 min-w-[150px]">
+              <% if (item.priority.toLowerCase() === 'high') { %>
+                <span class="px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-red-100/80 text-red-700 border border-red-200">
+                  High
+                </span>
+              <% } else { %>
+                <span class="px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-200">
+                  Medium
+                </span>
+              <% } %>
+
+              <button class="p-2 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-50 transition-colors">
+                <svg class="w-5 h-5 stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
+
+          </div>
+        <% }) %>
+      </div>
+
+    </main>
+  </div>
+
+  <script>
+    const portalBtn = document.getElementById('portal-btn');
+    const portalDropdown = document.getElementById('portal-dropdown');
+    const dropdownChevron = document.getElementById('dropdown-chevron');
+
+    if (portalBtn && portalDropdown) {
+      portalBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        portalDropdown.classList.toggle('hidden');
+        dropdownChevron.classList.toggle('rotate-180');
+      });
+
+      document.addEventListener('click', (e) => {
+        const container = document.getElementById('portal-menu-container');
+        if (container && !container.contains(e.target)) {
+          portalDropdown.classList.add('hidden');
+          dropdownChevron.classList.remove('rotate-180');
+        }
+      });
+    }
+  </script>
+</body>
+</html>

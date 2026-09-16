@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>403 - Unauthorized Portal Access</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 min-h-screen flex items-center justify-center p-6 text-center font-sans">
+  <div class="max-w-md bg-white border border-slate-200 rounded-3xl p-8 shadow-xl space-y-4">
+    <div class="w-12 h-12 rounded-full bg-red-50 text-red-600 mx-auto flex items-center justify-center font-bold text-xl">
+      !
+    </div>
+    <h1 class="text-xl font-bold text-slate-900">Access Restricted</h1>
+    <p class="text-sm text-slate-500 leading-relaxed">
+      You are currently logged in with a <strong><%= userRole.toUpperCase() %></strong> account. 
+      You do not have credentials to access the <strong><%= attemptedRole.toUpperCase() %> Portal</strong> directly.
+    </p>
+
+    <div class="pt-4 flex flex-col gap-2">
+      <!-- Direct Sign Out and Switch -->
+      <a href="/signout?portal=<%= attemptedRole %>" class="w-full py-2.5 rounded-xl bg-[#4338CA] text-white text-sm font-semibold hover:bg-indigo-700 transition-colors">
+        Switch Account / Sign In to <%= attemptedRole.toUpperCase() %>
+      </a>
+      <a href="<%= userRole === 'consumer' ? '/' : (userRole === 'business' ? '/business' : '/legal') %>" class="w-full py-2.5 rounded-xl border border-slate-200 text-slate-700 text-sm font-semibold hover:bg-slate-50 transition-colors">
+        Return to My Portal
+      </a>
+    </div>
+  </div>
+</body>
+</html>

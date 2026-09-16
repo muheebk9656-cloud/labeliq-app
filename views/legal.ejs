@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Legal Directorate - Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          colors: { brand: { DEFAULT: '#4638d9', hover: '#3a2ec2' } },
+          keyframes: {
+            blink: {
+              '0%, 100%': { opacity: '1', transform: 'scale(1)' },
+              '50%': { opacity: '0.3', transform: 'scale(0.85)' }
+            }
+          },
+          animation: {
+            blinker: 'blink 1.2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-[#fcfdff] text-slate-700 antialiased font-sans h-screen overflow-hidden flex flex-col">
+
+  <!-- Top Header Navigation -->
+  <header class="w-full bg-white border-b border-slate-100 h-16 shrink-0 z-50">
+    <div class="px-8 h-full flex items-center justify-between">
+      <div class="flex items-center gap-10">
+        <a href="/" class="flex items-center gap-2.5">
+          <div class="w-7 h-7 rounded-lg bg-[#4638d9] flex items-center justify-center text-white font-bold text-sm">
+            IQ
+          </div>
+          <span class="text-xl font-bold text-slate-900 tracking-tight">LabelIQ</span>
+        </a>
+
+        <nav class="hidden md:flex items-center gap-8 text-[14px] font-medium text-slate-600">
+          <a href="#" class="hover:text-slate-900 transition-colors">Product</a>
+          <a href="/legal/rules" class="hover:text-slate-900 transition-colors">Rule Engine</a>
+          <a href="/verification" class="hover:text-slate-900 transition-colors">Verification</a>
+        </nav>
+      </div>
+
+      <!-- Right Portal Switcher & Sign Out -->
+      <div class="flex items-center gap-6">
+        <div class="relative" id="portal-menu-container">
+          <button id="portal-btn" type="button" class="flex items-center gap-1.5 text-[14px] font-medium text-slate-800 focus:outline-none">
+            <span>Legal Authority</span>
+            <svg id="dropdown-chevron" class="w-4 h-4 text-slate-400 stroke-[2] transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+
+          <div id="portal-dropdown" class="hidden absolute right-0 top-full mt-2 w-56 bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden z-50 py-1">
+            <a href="/signout?portal=consumer" class="w-full px-5 py-3 text-left text-[14px] font-medium text-slate-800 hover:bg-slate-50 block">Consumer Portal</a>
+            <a href="/signout?portal=business" class="w-full px-5 py-3 text-left text-[14px] font-medium text-slate-800 hover:bg-slate-50 block">Business Portal</a>
+            <a href="/legal" class="w-full px-5 py-3 text-left text-[14px] font-medium text-[#4638d9] bg-[#f5f6ff] flex items-center justify-between block">
+              <span>Legal Authority</span>
+              <svg class="w-3.5 h-3.5 text-[#4638d9] stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
+            </a>
+          </div>
+        </div>
+
+        <a href="/signout?portal=legal" class="px-4 py-2 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-700 font-medium text-[14px] transition-colors">
+          Sign Out
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Viewport Lock Layout: Static Non-Shifting Sidebar -->
+  <div class="flex flex-1 h-[calc(100vh-4rem)] overflow-hidden">
+    
+    <!-- ================= STATIC SIDEBAR ================= -->
+    <aside class="w-64 border-r border-slate-100 bg-white flex flex-col justify-between py-6 px-4 shrink-0 h-full select-none">
+      <div class="space-y-4">
+        <!-- Officer Badge Card -->
+        <div class="flex items-center gap-3 px-2">
+          <div class="w-10 h-10 rounded-full bg-[#fbf2ea] text-[#d97706] font-bold text-xs flex items-center justify-center border border-[#fed7aa]/50 shrink-0">
+            <%= data.officer.initials %>
+          </div>
+          <div class="truncate">
+            <h2 class="text-sm font-bold text-slate-900 leading-tight truncate"><%= data.officer.name %></h2>
+            <p class="text-xs text-slate-400 truncate"><%= data.officer.role %></p>
+          </div>
+        </div>
+
+        <!-- Audit Alert Pill -->
+        <div class="mx-1 px-3 py-2 rounded-xl bg-[#fffbeb] border border-[#fef3c7] flex items-center gap-2 text-xs text-[#b45309] font-medium">
+          <svg class="w-4 h-4 text-[#d97706] shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+          <span>All actions audit-logged</span>
+        </div>
+
+        <!-- Sidebar Inspection Action Button -->
+        <button 
+          type="button" 
+          onclick="openScanModal('legal')" 
+          class="w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-emerald-800 bg-emerald-50/80 hover:bg-emerald-100 font-semibold text-[13px] border border-emerald-200/70 transition-colors text-left shadow-2xs"
+        >
+          <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="3" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+          </svg>
+          <span>New Inspection Scan</span>
+        </button>
+
+        <!-- Navigation Switchers -->
+        <nav class="space-y-1 pt-1">
+          <button 
+            type="button" 
+            onclick="switchTab('overview')"
+            id="tab-btn-overview"
+            class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-[#f5f6ff] text-[#4638d9] font-semibold text-[14px] transition-colors text-left"
+          >
+            <span>Submitted Complaints</span>
+          </button>
+
+          <button 
+            type="button" 
+            onclick="switchTab('queue')"
+            id="tab-btn-queue"
+            class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium text-[14px] transition-colors text-left"
+          >
+            <span>Case Queue</span>
+            <span class="w-5 h-5 rounded-full bg-[#ef4444] text-white text-[11px] font-bold flex items-center justify-center">
+              <%= data.queueMetrics ? data.queueMetrics.newCases : 2 %>
+            </span>
+          </button>
+
+          <button 
+            type="button" 
+            onclick="switchTab('inspections')"
+            id="tab-btn-inspections"
+            class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium text-[14px] transition-colors text-left"
+          >
+            <span>Inspection Records</span>
+          </button>
+
+          <a 
+            href="/legal/rules" 
+            class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium text-[14px] transition-colors text-left"
+          >
+            <span>Rule Management</span>
+            <span class="px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 text-[10px] font-bold">PDF</span>
+          </a>
+
+          <button type="button" class="w-full px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium text-[14px] transition-colors text-left">
+            Audit Trail
+          </button>
+        </nav>
+      </div>
+
+      <!-- Static Directorate Admin Bottom Link -->
+      <div class="pt-4 border-t border-slate-100 px-2">
+        <a href="/legal/admin/auth" class="w-full py-2 px-3 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors">
+          <span>+ Register Officers (Admin)</span>
+        </a>
+      </div>
+    </aside>
+
+    <!-- ================= RIGHT DYNAMIC WORKSPACE ================= -->
+    <main class="flex-1 px-10 py-8 overflow-y-auto h-full max-w-6xl">
+      
+      <!-- 1. TAB: SUBMITTED COMPLAINTS / OVERVIEW -->
+      <div id="view-overview" class="space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5">
+          <div>
+            <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Enforcement Directorate</h1>
+            <p class="text-sm text-slate-500 mt-1"><%= data.officer.region %></p>
+          </div>
+
+          <!-- Fast Scan Action -->
+          <button 
+            type="button" 
+            onclick="openScanModal('legal')" 
+            class="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-black text-white text-xs font-semibold flex items-center gap-2 shadow-sm transition-all"
+          >
+            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h2m-6 0a2 2 0 002-2v-4a2 2 0 00-2-2h-4a2 2 0 00-2 2v4a2 2 0 002 2h4zm-6 4h.01M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+            <span>Field Inspection Scan</span>
+          </button>
+        </div>
+
+        <!-- Filter Badges -->
+        <div class="flex flex-wrap items-center gap-2">
+          <% data.filters.forEach(filter => { %>
+            <button class="px-5 py-1.5 rounded-full text-xs font-semibold transition-colors <%= filter.active ? 'border border-[#4638d9] text-[#4638d9] bg-indigo-50/20' : 'border border-slate-200 text-slate-600 hover:border-slate-300 bg-white' %>">
+              <%= filter.label %>
+            </button>
+          <% }) %>
+        </div>
+
+        <!-- Metrics Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs">
+            <p class="text-3xl font-bold text-slate-900"><%= data.metrics.totalCases %></p>
+            <p class="text-xs text-slate-400 mt-1.5">Total cases</p>
+          </div>
+          <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs">
+            <p class="text-3xl font-bold text-slate-900"><%= data.metrics.awaitingAction %></p>
+            <p class="text-xs text-slate-400 mt-1.5">Awaiting action</p>
+          </div>
+          <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs">
+            <p class="text-3xl font-bold text-slate-900"><%= data.metrics.investigating %></p>
+            <p class="text-xs text-slate-400 mt-1.5">Investigating</p>
+          </div>
+          <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs">
+            <p class="text-3xl font-bold text-slate-900"><%= data.metrics.verifiedViolations %></p>
+            <p class="text-xs text-slate-400 mt-1.5">Verified violations</p>
+          </div>
+        </div>
+
+        <!-- Complaint Items Feed -->
+        <div class="space-y-3.5 pt-2 pb-12">
+          <% data.cases.forEach(item => { %>
+            <div class="bg-white border border-slate-200/80 rounded-2xl p-5 hover:border-slate-300 transition-all flex items-center justify-between group shadow-xs">
+              <div class="space-y-2">
+                <div class="flex items-center gap-2.5">
+                  <span class="w-2 h-2 rounded-full <%= item.dotColor %> shrink-0"></span>
+                  <span class="text-xs font-mono text-slate-400"><%= item.id %></span>
+                  <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold <%= item.statusStyle %>"><%= item.status %></span>
+                  <span class="text-xs text-slate-400"><%= item.date %></span>
+                </div>
+                <h3 class="text-[15px] font-bold text-slate-900 tracking-tight"><%= item.title %></h3>
+                <p class="text-xs text-slate-500 font-normal"><%= item.source %></p>
+                <div class="flex items-center gap-2 pt-1">
+                  <% item.rules.forEach(rule => { %>
+                    <span class="px-2 py-0.5 rounded-md bg-[#fff1f2] border border-[#ffe4e6] text-[#e11d48] text-[11px] font-mono font-medium"><%= rule %></span>
+                  <% }) %>
+                </div>
+              </div>
+              <div class="text-slate-300 group-hover:text-slate-500 transition-all pr-1">
+                <svg class="w-5 h-5 stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      </div>
+
+      <!-- 2. TAB: CASE QUEUE -->
+      <div id="view-queue" class="hidden space-y-8 pb-12">
+        <div>
+          <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">CASE QUEUE</h1>
+          <p class="text-xs text-slate-400 mt-1">Priority triage based on critical statutory non-compliances</p>
+        </div>
+
+        <!-- Metric Stat Cards with Blinking Indicator -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-xl">
+          <div class="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs flex flex-col justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">TOTAL CASES</span>
+            <p class="text-4xl font-extrabold text-slate-900 mt-3"><%= data.queueMetrics ? data.queueMetrics.totalCases : 5 %></p>
+            <span class="text-[11px] text-slate-400 mt-1">Active regulatory files</span>
+          </div>
+
+          <div class="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs flex flex-col justify-between relative overflow-hidden">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-400">NEW</span>
+              <div class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-50 border border-red-100">
+                <span class="w-2.5 h-2.5 rounded-full bg-red-500 animate-blinker shadow-sm shadow-red-500/50"></span>
+                <span class="text-[10px] font-bold text-red-600 uppercase tracking-tight">Live</span>
+              </div>
+            </div>
+            <p class="text-4xl font-extrabold text-red-600 mt-3"><%= data.queueMetrics ? data.queueMetrics.newCases : 2 %></p>
+            <span class="text-[11px] text-slate-400 mt-1">Immediate action required</span>
+          </div>
+        </div>
+
+        <!-- Priority Legend -->
+        <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 pb-3">
+          <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wider">Active Commodity Queue</h2>
+          <div class="flex items-center gap-4 text-xs font-medium">
+            <span class="flex items-center gap-1.5 text-slate-600">
+              <span class="w-2.5 h-2.5 rounded-full bg-red-600"></span> High Priority (Critical Missing Info)
+            </span>
+            <span class="flex items-center gap-1.5 text-slate-600">
+              <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> Medium Priority
+            </span>
+          </div>
+        </div>
+
+        <!-- Queue Rows -->
+        <div class="space-y-4">
+          <% (data.queueCases || [
+            { caseId: 'CAS-2026-081', commodityName: 'NutriGold Protein Bar 30g', violation: 'Missing MRP', priority: 'High', date: 'Today' },
+            { caseId: 'CAS-2026-079', commodityName: 'SunJoy Fine Atta 1 kg', violation: 'Net Quantity Undersized', priority: 'High', date: 'Today' },
+            { caseId: 'CAS-2026-074', commodityName: 'CleanMax Detergent 1 kg', violation: 'Manufacturer Address Incomplete', priority: 'Medium', date: 'Yesterday' },
+            { caseId: 'CAS-2026-068', commodityName: 'GlowPure Face Cream 50g', violation: 'Missing Expiry Date', priority: 'High', date: '14 Sep 2026' },
+            { caseId: 'CAS-2026-061', commodityName: 'FeatherSoft Bedsheet Cotton', violation: 'Font Size Rule 6(2)', priority: 'Medium', date: '12 Sep 2026' }
+          ]).forEach(item => { %>
+            <div class="bg-white border border-slate-200/90 hover:border-slate-300 rounded-2xl p-5 shadow-xs transition-all flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div class="space-y-1 min-w-[240px]">
+                <div class="flex items-center gap-2">
+                  <span class="text-xs font-mono font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-md border border-indigo-100">
+                    <%= item.caseId %>
+                  </span>
+                  <span class="text-xs text-slate-400"><%= item.date %></span>
+                </div>
+                <h3 class="text-base font-bold text-slate-900 tracking-tight pt-1">
+                  <%= item.commodityName %>
+                </h3>
+              </div>
+
+              <div class="flex-1 flex md:justify-center">
+                <div class="px-4 py-1.5 rounded-full bg-slate-100 border border-slate-200/80 text-slate-700 text-xs font-semibold flex items-center gap-2 shadow-xs">
+                  <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                  </svg>
+                  <span><%= item.violation %></span>
+                </div>
+              </div>
+
+              <div class="flex items-center justify-between md:justify-end gap-3 min-w-[150px]">
+                <% if (item.priority.toLowerCase() === 'high') { %>
+                  <span class="px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-red-100/80 text-red-700 border border-red-200">
+                    High
+                  </span>
+                <% } else { %>
+                  <span class="px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-200">
+                    Medium
+                  </span>
+                <% } %>
+
+                <button class="p-2 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-50 transition-colors">
+                  <svg class="w-5 h-5 stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      </div>
+
+      <!-- 3. TAB: INSPECTION RECORDS -->
+      <div id="view-inspections" class="hidden space-y-8 pb-12">
+        <div>
+          <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight uppercase">Inspection Records</h1>
+          <p class="text-xs text-slate-400 mt-1">Field inspection logs and statutory audit verifications</p>
+        </div>
+
+        <!-- Metric Stat Cards -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs flex flex-col justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Inspection</span>
+            <p class="text-3xl font-extrabold text-slate-900 mt-2">
+              <%= data.inspectionMetrics ? data.inspectionMetrics.total : 12 %>
+            </p>
+          </div>
+
+          <div class="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs flex flex-col justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">In Progress</span>
+            <p class="text-3xl font-extrabold text-amber-500 mt-2">
+              <%= data.inspectionMetrics ? data.inspectionMetrics.inProgress : 3 %>
+            </p>
+          </div>
+
+          <div class="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs flex flex-col justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Completed</span>
+            <p class="text-3xl font-extrabold text-emerald-600 mt-2">
+              <%= data.inspectionMetrics ? data.inspectionMetrics.completed : 7 %>
+            </p>
+          </div>
+
+          <div class="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs flex flex-col justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Non-Compliant</span>
+            <p class="text-3xl font-extrabold text-red-600 mt-2">
+              <%= data.inspectionMetrics ? data.inspectionMetrics.nonCompliant : 2 %>
+            </p>
+          </div>
+        </div>
+
+        <!-- Log Table -->
+        <div class="bg-white border border-slate-200/90 rounded-2xl overflow-hidden shadow-xs">
+          <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+            <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wider">Field Inspection Log</h2>
+            <span class="text-xs text-slate-400">Updated today</span>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr class="bg-slate-50/80 text-slate-400 font-bold uppercase tracking-wider border-b border-slate-100">
+                  <th class="py-3.5 px-5">Case ID</th>
+                  <th class="py-3.5 px-5">Product</th>
+                  <th class="py-3.5 px-5">Manufacturer</th>
+                  <th class="py-3.5 px-5">Inspector</th>
+                  <th class="py-3.5 px-5">Inspection Date</th>
+                  <th class="py-3.5 px-5">Status</th>
+                  <th class="py-3.5 px-5 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                <% (data.inspections || [
+                  { id: 'INS-2026-101', product: 'SunJoy Fine Atta 1 kg', manufacturer: 'SunJoy Foods Pvt Ltd', inspector: 'Insp. R. K. Sharma', date: '16 Sep 2026', status: 'completed' },
+                  { id: 'INS-2026-102', product: 'NutriGold Protein Bar 30g', manufacturer: 'Apex Nutrition Ltd', inspector: 'Insp. S. Patel', date: '16 Sep 2026', status: 'non_compliant' },
+                  { id: 'INS-2026-103', product: 'CleanMax Detergent 1 kg', manufacturer: 'RetailFirst Brands', inspector: 'Insp. R. K. Sharma', date: '15 Sep 2026', status: 'in_progress' },
+                  { id: 'INS-2026-104', product: 'GlowPure Cream 50g', manufacturer: 'PureSkin Organics', inspector: 'Insp. A. Verma', date: '14 Sep 2026', status: 'completed' },
+                  { id: 'INS-2026-105', product: 'FeatherSoft Bedding Set', manufacturer: 'LoomCraft India', inspector: 'Insp. S. Patel', date: '12 Sep 2026', status: 'non_compliant' }
+                ]).forEach(item => { %>
+                  <tr class="hover:bg-slate-50/60 transition-colors">
+                    <td class="py-4 px-5 font-mono font-bold text-indigo-700"><%= item.id %></td>
+                    <td class="py-4 px-5 font-bold text-slate-800"><%= item.product %></td>
+                    <td class="py-4 px-5 text-slate-600"><%= item.manufacturer %></td>
+                    <td class="py-4 px-5 text-slate-600"><%= item.inspector %></td>
+                    <td class="py-4 px-5 text-slate-500 font-mono"><%= item.date %></td>
+                    <td class="py-4 px-5">
+                      <% if (item.status === 'completed') { %>
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                          <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                          </svg>
+                          Completed
+                        </span>
+                      <% } else if (item.status === 'in_progress') { %>
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+                          <svg class="w-3.5 h-3.5 text-amber-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="9" />
+                            <polyline points="12 7 12 12 15 15" />
+                          </svg>
+                          In Progress
+                        </span>
+                      <% } else { %>
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-red-50 text-red-700 border border-red-200">
+                          <svg class="w-3.5 h-3.5 text-red-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="9" />
+                            <line x1="12" y1="8" x2="12" y2="12" />
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                          </svg>
+                          Non Compliant
+                        </span>
+                      <% } %>
+                    </td>
+                    <td class="py-4 px-5 text-right">
+                      <button class="px-3 py-1.5 rounded-lg border border-slate-200 hover:border-indigo-500 hover:text-indigo-600 text-slate-700 font-semibold text-xs transition-colors shadow-2xs">
+                        View Details
+                      </button>
+                    </td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Included Scan Modal Partial -->
+  <%- include('scan_modal') %>
+
+  <script>
+    // Tab switcher: Sidebar stays locked, right workspace changes
+    function switchTab(tab) {
+      const overviewView = document.getElementById('view-overview');
+      const queueView = document.getElementById('view-queue');
+      const inspectionsView = document.getElementById('view-inspections');
+
+      const overviewBtn = document.getElementById('tab-btn-overview');
+      const queueBtn = document.getElementById('tab-btn-queue');
+      const inspectionsBtn = document.getElementById('tab-btn-inspections');
+
+      // Hide all panels
+      overviewView.classList.add('hidden');
+      queueView.classList.add('hidden');
+      inspectionsView.classList.add('hidden');
+
+      // Reset button classes
+      const inactiveBtnClass = "w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium text-[14px] transition-colors text-left";
+      const activeBtnClass = "w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-[#f5f6ff] text-[#4638d9] font-semibold text-[14px] transition-colors text-left";
+
+      overviewBtn.className = inactiveBtnClass;
+      queueBtn.className = inactiveBtnClass;
+      inspectionsBtn.className = inactiveBtnClass;
+
+      // Activate selected tab
+      if (tab === 'overview') {
+        overviewView.classList.remove('hidden');
+        overviewBtn.className = activeBtnClass;
+      } else if (tab === 'queue') {
+        queueView.classList.remove('hidden');
+        queueBtn.className = activeBtnClass;
+      } else if (tab === 'inspections') {
+        inspectionsView.classList.remove('hidden');
+        inspectionsBtn.className = activeBtnClass;
+      }
+    }
+
+    // Portal Switcher dropdown logic
+    const portalBtn = document.getElementById('portal-btn');
+    const portalDropdown = document.getElementById('portal-dropdown');
+    const dropdownChevron = document.getElementById('dropdown-chevron');
+
+    if (portalBtn && portalDropdown) {
+      portalBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        portalDropdown.classList.toggle('hidden');
+        dropdownChevron.classList.toggle('rotate-180');
+      });
+
+      document.addEventListener('click', (e) => {
+        const container = document.getElementById('portal-menu-container');
+        if (container && !container.contains(e.target)) {
+          portalDropdown.classList.add('hidden');
+          dropdownChevron.classList.remove('rotate-180');
+        }
+      });
+    }
+  </script>
+</body>
+</html>
